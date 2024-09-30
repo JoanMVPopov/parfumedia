@@ -49,7 +49,7 @@
 <script>
 import PageCard from '../components/PageCard.vue';
 
-import axios from 'axios'
+import apiClient from "@/api";
 
 export default {
   name: 'HomePage',
@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     getLatestProducts() {
-      axios.get('/test/latest-products/')
+      apiClient.get('/test/latest-products/')
           .then(response => {
             this.latestProducts = response.data
           }).catch(error => {

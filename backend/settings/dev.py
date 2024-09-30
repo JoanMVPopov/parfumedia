@@ -56,9 +56,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080'
-]
+# -----------------------
+
+## CHANGE THIS LATER FOR PRODUCTION
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000"
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+# -----------------------
 
 ## ADDED FOR DRF
 REST_FRAMEWORK = {
@@ -89,7 +98,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
@@ -107,6 +116,14 @@ DATABASES = {
         "PORT": config('DATABASE_PORT', cast=int),
     }
 }
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 
 # Password validation

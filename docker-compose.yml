@@ -1,0 +1,97 @@
+services:
+  # Database Service: PostgreSQL
+  postgres:
+    image: postgres:13
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+
+  # Cache & Broker Service: Redis
+  redis:
+    image: redis:6-alpine
+    restart: always
+    networks:
+      - app-network
+
+  # Backend Service: Django with Gunicorn
+  backend:
+    build:
+      context: ./backend
+      dockerfile: backend.Dockerfile
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+  # Celery Worker Service for Django
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: celery.Dockerfile
+    volumes:
+      - ./backend:/app/backend
+#    command: celery -A backend.settings.celery worker --loglevel=info
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - app-network
+
+  # Frontend Service: Vue.js
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app/frontend
+    ports:
+      - "3000:8080"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Workflow Service: Apache Airflow
+  airflow:
+    build:
+      context: ./airflow
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

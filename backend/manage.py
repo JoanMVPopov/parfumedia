@@ -7,6 +7,10 @@ import sys
 def main():
     """Run administrative tasks."""
 
+    print(f'\nIN MANAGE {os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}\n\n')
+
+    print("DETECT CHANGE\n")
+
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')

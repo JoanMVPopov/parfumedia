@@ -28,6 +28,11 @@ class Product(models.Model):
     thumbnail = models.ImageField(upload_to='uploads/', blank =True, null = True)
     date_added = models.DateTimeField(auto_now_add=True)
 
+    """
+    The Meta class in Django models is a way to define metadata about the model. 
+    It allows you to configure options for how the model behaves, 
+    interacts with the database, and is presented in the admin interface.
+    """
     class Meta:
         ordering = ('-date_added',)
 

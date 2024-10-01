@@ -1,5 +1,7 @@
 #!/bin/bash
 
+printenv
+
 # Initialize the Airflow database
 airflow db init
 
@@ -16,5 +18,15 @@ airflow users create \
 # Start the scheduler in the background
 airflow scheduler &
 
-# Start the webserver
+# Wait until the DAG is registered
+echo "Waiting for DAG 'etl-pipeline' to be registered..."
+while ! airflow dags list | grep -w 'etl-pipeline'; do
+  sleep 5
+done
+echo "DAG 'etl-pipeline' is now registered."
+
+# Trigger the DAG programmatically using the Airflow CLI
+airflow dags trigger etl-pipeline
+
+# Start the webserver in the foreground (this keeps the container alive)
 exec airflow webserver

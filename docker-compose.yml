@@ -16,6 +16,8 @@ services:
   redis:
     image: redis:6-alpine
     restart: always
+    env_file:
+      - .env
     networks:
       - app-network
 
@@ -81,13 +83,16 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
+      - ./airflow/config:/opt/airflow/config
     ports:
       - "8080:8080"
     depends_on:
       - postgres
       - redis
+      - celery_worker
     networks:
       - app-network
+#    user: "${AIRFLOW_UID:-50000}:0"
 
 networks:
   app-network:

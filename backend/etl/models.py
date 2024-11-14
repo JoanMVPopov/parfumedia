@@ -1,6 +1,6 @@
 from io import BytesIO
 from PIL import Image
-
+from django.contrib.postgres.fields import ArrayField
 from django.core.files import File
 from django.db import models
 
@@ -17,6 +17,39 @@ class Category(models.Model):
 
     def get_absolute_url(self):
         return f'/{self.slug}/'
+
+
+class Backlog(models.Model):
+    link = models.TextField()
+    attempts = models.IntegerField(default=0)
+
+
+class Perfume(models.Model):
+    link = models.TextField()
+    name = models.CharField(max_length=255)
+    brand = models.CharField(max_length=255)
+    rel_year = models.IntegerField()
+    rel_decade = models.IntegerField()
+    notes = ArrayField(
+        models.CharField(max_length=50),
+        blank=True,
+        default=list,
+    )
+    chart_categories = ArrayField(
+        models.CharField(max_length=50),
+        blank=True,
+        default=list,
+    )
+    chart_numbers = ArrayField(
+        models.IntegerField(),
+        blank=True,
+        default=list,
+    )
+    scent = models.FloatField()
+    longevity = models.FloatField()
+    sillage = models.FloatField()
+    bottle = models.FloatField()
+    value_for_money = models.FloatField()
 
 class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')

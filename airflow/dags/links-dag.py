@@ -44,10 +44,14 @@ with DAG(
             return 'handle_rescheduling'
 
     def handle_rescheduling():
+        # TODO: Need to figure out a default return value
         time_etl_completion = datetime.strptime(Variable.get("time_etl_completion"), "%Y-%m-%d %H:%M:%S")
         # delta = timedelta(days=5) or (days=7)
         delta = timedelta(minutes=5)
 
+        # TODO: What happens if you reschedule scraping while etl-pipeline is running?
+        # This behaviour should be avoided, good weather does not allow it, but further testing needed
+        # Possibly include dag.is_paused check in here
         if abs(time_etl_completion - datetime.now()) >= delta:
             print(f"Elapsed time between last total scrape job and now exceeds ${delta}. Scraping will resume soon...")
             Variable.set("list_links_iterations", 0)

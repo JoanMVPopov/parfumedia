@@ -28,7 +28,7 @@ with DAG(
     default_args=default_args,
     description='DAG to scrape 400 links (4*100) up to 5 times',
     # schedule_interval='0 */12 * * *',  # every 12 hours
-    schedule_interval='*/10 * * * *',  # every 2 minutes
+    schedule_interval='*/10 * * * *',  # every 10 minutes
     catchup=False,
     max_active_runs=1,
 ) as links_dag:
@@ -37,16 +37,18 @@ with DAG(
     def branch_func():
         times_ran = int(Variable.get("list_links_iterations", default_var=0))
 
-        if times_ran < 5:
+        # if times_ran < 5:
+        if times_ran < 3:
             return 'link_scraping'
         else:
             return 'handle_rescheduling'
 
     def handle_rescheduling():
         time_etl_completion = datetime.strptime(Variable.get("time_etl_completion"), "%Y-%m-%d %H:%M:%S")
-        delta = timedelta(days=7)
+        # delta = timedelta(days=5) or (days=7)
+        delta = timedelta(minutes=5)
 
-        if time_etl_completion - datetime.now() >= delta:
+        if abs(time_etl_completion - datetime.now()) >= delta:
             print(f"Elapsed time between last total scrape job and now exceeds ${delta}. Scraping will resume soon...")
             Variable.set("list_links_iterations", 0)
         else:

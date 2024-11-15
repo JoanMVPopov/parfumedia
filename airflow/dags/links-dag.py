@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import logging
 from pyvirtualdisplay import Display
-from tasks.links import link_scrape
+from utilities.ListLinkScraper import link_scrape
 from airflow.utils.dates import days_ago
 from airflow.models.variable import Variable
 
@@ -35,22 +35,35 @@ with DAG(
 
     @task.branch(task_id="branch")
     def branch_func():
-        times_ran = int(Variable.get("get_col_links", default_var=0))
-
-        #print("\n\nTIMES RAN in links-dag: ", times_ran)
+        times_ran = int(Variable.get("list_links_iterations", default_var=0))
 
         if times_ran < 5:
             return 'link_scraping'
         else:
-            return 'empty'
+            return 'handle_rescheduling'
+
+    def handle_rescheduling():
+        time_etl_completion = datetime.strptime(Variable.get("time_etl_completion"), "%Y-%m-%d %H:%M:%S")
+        delta = timedelta(days=7)
+
+        if time_etl_completion - datetime.now() >= delta:
+            print(f"Elapsed time between last total scrape job and now exceeds ${delta}. Scraping will resume soon...")
+            Variable.set("list_links_iterations", 0)
+        else:
+            print(f"Waiting time of ${delta} not reached. No actions will be taken until then...")
+
 
     link_scraping_op = PythonOperator(
         task_id="link_scraping",
         python_callable=link_scrape
     )
 
-    empty_op = EmptyOperator(task_id="empty")
+
+    handle_rescheduling_op = PythonOperator(
+        task_id="handle_rescheduling",
+        python_callable=handle_rescheduling
+    )
 
     branch_op = branch_func()
 
-    branch_op >> [link_scraping_op, empty_op]
+    branch_op >> [link_scraping_op, handle_rescheduling_op]

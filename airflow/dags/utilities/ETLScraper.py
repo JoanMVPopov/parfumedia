@@ -9,26 +9,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from Driver import ScrapeDriver
 
 
 class Scraper:
-    def __init__(self):
+    def __init__(self, driver):
         self.logger = logging.getLogger(__name__)
-        self.driver, self.display = self.setup_driver()
-
-    def setup_driver(self):
-        display = Display(visible=False, size=(1920, 1080))
-        display.start()
-
-        chrome_options = Options()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.page_load_strategy = 'eager'
-
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.maximize_window()
-
-        return driver, display
+        self.driver = driver.get_driver()
+        self.display = driver.get_display()
 
     def create_soup(self, driver, link, index):
         driver.get(link)
@@ -92,7 +80,7 @@ class Scraper:
         for item in chart_items:
             current_chart_items = item.find_all('tspan')
 
-            # for each span in the current item
+            # For each span in the current item
             for i in current_chart_items:
                 item_text = i.get_text(strip=True)
                 if item_text == '100%':
@@ -115,7 +103,6 @@ class Scraper:
     def extract_rating_items(self, soup, data_dic):
         rating_items = soup.find_all('div', class_="flex flex-wrap")
 
-        # for item in rating_items:
         current_rating_item = rating_items[0].get_text(separator=' ')
         current_rating_item = [float(x) for x in current_rating_item.split() if self.is_float(x)]
         current_rating_item = current_rating_item[
@@ -133,7 +120,7 @@ class Scraper:
         h1_perfume_name = general_div.find("h1", class_="p_name_h1").contents[0]
         span_other_info = general_div.find("span", class_="p_brand_name nobold")
 
-        # expect 2 a hrefs (one for brand name, one for release year)
+        # Expect 2 a hrefs (one for brand name, one for release year)
         a_tags = span_other_info.find_all("a")
         a_brand_name = a_tags[0].get_text()
         a_brand_year = int(a_tags[1].get_text())
@@ -153,7 +140,7 @@ class Scraper:
             select_query = """
                         SELECT id, link 
                         FROM etl_backlog
-                        WHERE attempts = 0
+                        WHERE attempts < 3
                         ORDER BY id
                         LIMIT 5
                         FOR UPDATE SKIP LOCKED;
@@ -167,29 +154,37 @@ class Scraper:
                 return
 
             total_record_list = []
+            successful_link_scrape_ids = []
 
             for index, record in enumerate(links):
                 record_id, link = record
 
+                # Mark that we have attempted to scrape this specific link
                 update_query = """
                                     UPDATE etl_backlog
                                     SET attempts = attempts + 1
                                     WHERE id = %s;
                                 """
                 cursor.execute(update_query, (record_id,))
+                connection.commit()
 
-                soup = self.create_soup(self.driver, link, index)
-                data_dictionary = {}
-                self.extract_general(soup, data_dictionary)
-                self.extract_notes(soup, data_dictionary)
-                self.extract_chart_items(soup, data_dictionary)
-                self.extract_rating_items(soup, data_dictionary)
-                total_record_list.append((link, data_dictionary['Name'], data_dictionary['Brand'],
-                                          data_dictionary['Year'], data_dictionary['Year'], data_dictionary['Notes'],
-                                          data_dictionary['Chart Categories'], data_dictionary['Chart Numbers'],
-                                          data_dictionary['Scent'], data_dictionary['Longevity'], data_dictionary['Sillage'],
-                                          data_dictionary['Bottle'], data_dictionary['Value For Money'],))
+                try:
+                    soup = self.create_soup(self.driver, link, index)
+                    data_dictionary = {}
+                    self.extract_general(soup, data_dictionary)
+                    self.extract_notes(soup, data_dictionary)
+                    self.extract_chart_items(soup, data_dictionary)
+                    self.extract_rating_items(soup, data_dictionary)
+                    total_record_list.append((link, data_dictionary['Name'], data_dictionary['Brand'],
+                                              data_dictionary['Year'], data_dictionary['Year'], data_dictionary['Notes'],
+                                              data_dictionary['Chart Categories'], data_dictionary['Chart Numbers'],
+                                              data_dictionary['Scent'], data_dictionary['Longevity'], data_dictionary['Sillage'],
+                                              data_dictionary['Bottle'], data_dictionary['Value For Money'],))
+                    successful_link_scrape_ids.append((record_id,))
+                except Exception as e:
+                    print(f"Encountered an error while scraping individual link: {e}")
 
+            # After loop, insert newly acquired data into the etl_perfume table (contains all info)
             insert_query = """
                             INSERT INTO etl_perfume (link, name, brand, rel_year, rel_decade, notes, chart_categories, 
                             chart_numbers, scent, longevity, sillage, bottle, value_for_money)
@@ -198,16 +193,24 @@ class Scraper:
 
             cursor.executemany(insert_query, total_record_list)
 
+            # Delete the entries from the backlog that have been successfully scraped (no need to scrape again)
+            delete_query = """
+                            DELETE FROM etl_backlog
+                            WHERE etl_backlog.id = %s
+                            """
+
+            cursor.executemany(delete_query, successful_link_scrape_ids)
             connection.commit()
 
         except Exception as e:
             connection.rollback()
-            logging.error(f"Error processing records: {e}")
+            logging.error(f"Error processing individual link extraction, possibly SQL related: {e}")
         finally:
             cursor.close()
             connection.close()
 
 
 def extract():
-    scraper = Scraper()
+    driver = ScrapeDriver()
+    scraper = Scraper(driver)
     return scraper.scrape()

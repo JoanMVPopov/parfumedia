@@ -1,6 +1,6 @@
 #FROM node:lts-alpine
 
-FROM node:13.12.0-alpine
+FROM node:14-alpine
 
 RUN npm cache clean --force
 

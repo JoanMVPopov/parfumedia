@@ -1,4 +1,5 @@
 from airflow.decorators import task
+from airflow.models import DagModel
 from airflow.operators.empty import EmptyOperator
 from selenium import webdriver
 from selenium.common import TimeoutException
@@ -37,6 +38,10 @@ with DAG(
     def branch_func():
         times_ran = int(Variable.get("list_links_iterations", default_var=0))
 
+        dag: DagModel = DagModel.get_dagmodel('etl_pipeline')
+        if not dag.is_paused:
+            return 'list_empty'
+
         # if times_ran < 5:
         if times_ran < 3:
             return 'link_scraping'
@@ -55,8 +60,10 @@ with DAG(
         if abs(time_etl_completion - datetime.now()) >= delta:
             print(f"Elapsed time between last total scrape job and now exceeds ${delta}. Scraping will resume soon...")
             Variable.set("list_links_iterations", 0)
+            return
         else:
             print(f"Waiting time of ${delta} not reached. No actions will be taken until then...")
+            return
 
 
     link_scraping_op = PythonOperator(
@@ -70,6 +77,8 @@ with DAG(
         python_callable=handle_rescheduling
     )
 
+    empty_op = EmptyOperator(task_id="list_empty")
+
     branch_op = branch_func()
 
-    branch_op >> [link_scraping_op, handle_rescheduling_op]
+    branch_op >> [empty_op, link_scraping_op, handle_rescheduling_op]

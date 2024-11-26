@@ -56,6 +56,7 @@ with DAG(
         current_time = datetime.now()
         datetime_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
         Variable.set("time_etl_completion", datetime_string)
+        return
 
     extract_task = PythonOperator(
         task_id='extract_data',

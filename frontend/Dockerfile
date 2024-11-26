@@ -1,7 +1,11 @@
-FROM node:lts-alpine
+#FROM node:lts-alpine
+
+FROM node:13.12.0-alpine
+
+RUN npm cache clean --force
 
 # install simple http server for serving static content
-RUN npm install -g http-server
+RUN npm install -g http-server --verbose
 
 # make the 'app' folder the current working directory
 WORKDIR /app

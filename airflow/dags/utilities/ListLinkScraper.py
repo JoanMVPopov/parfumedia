@@ -9,16 +9,15 @@ from utilities.generic.links import links
 class LinkScraper:
     def __init__(self, driver):
         self.logger = logging.getLogger(__name__)
-        self.driver = driver.get_driver()
-        self.display = driver.get_display()
+        self.driver_instance = driver
 
     def scrape_links(self):
         target_links = []
 
         for link in links:
-            self.driver.get(link)
+            self.driver_instance.driver.get(link)
 
-            html = self.driver.page_source
+            html = self.driver_instance.driver.page_source
 
             soup = BeautifulSoup(html, 'html.parser')
 
@@ -30,9 +29,6 @@ class LinkScraper:
                 a_tag = div_name_tag.find("a")
                 target_link = a_tag['href']
                 target_links.append((target_link, 0))
-
-        self.driver.quit()
-        self.display.stop()
 
         # df = pd.DataFrame(columns=["Link"], data=target_links)
 
@@ -61,9 +57,12 @@ class LinkScraper:
         except Exception as e:
             connection.rollback()
             print(f"Error inserting records into Backlog: {e}")
+            return
         finally:
             cursor.close()
             connection.close()
+            self.driver_instance.stop_driver()
+            return
 
 
 def link_scrape():

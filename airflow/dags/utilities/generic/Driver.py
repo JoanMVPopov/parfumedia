@@ -26,6 +26,10 @@ class ScrapeDriver:
         driver.maximize_window()
         return driver, display
 
+    def stop_driver(self):
+        self.driver.quit()
+        self.display.stop()
+
     def get_driver(self):
         return self.driver
 

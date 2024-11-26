@@ -15,11 +15,10 @@ from utilities.generic.Driver import ScrapeDriver
 class Scraper:
     def __init__(self, driver):
         self.logger = logging.getLogger(__name__)
-        self.driver = driver.get_driver()
-        self.display = driver.get_display()
+        self.driver_instance = driver
 
-    def create_soup(self, driver, link, index):
-        driver.get(link)
+    def create_soup(self, link, index):
+        self.driver_instance.driver.get(link)
 
         if index == 0:
             try:
@@ -27,15 +26,15 @@ class Scraper:
                 iframe_title = "SP Consent Message"
                 iframe_xpath = f"//iframe[@title='{iframe_title}']"
 
-                iframe = (WebDriverWait(driver, 5)
+                iframe = (WebDriverWait(self.driver_instance.driver, 5)
                           .until(EC.presence_of_element_located((By.XPATH, iframe_xpath))))
 
-                driver.switch_to.frame(iframe)
+                self.driver_instance.driver.switch_to.frame(iframe)
 
                 button_title = "Accept"
                 button_xpath = f"//button[@title='{button_title}']"
 
-                button = (WebDriverWait(driver, 5)
+                button = (WebDriverWait(self.driver_instance.driver, 5)
                           .until(EC.presence_of_element_located((By.XPATH, button_xpath))))
 
                 button.click()
@@ -45,19 +44,19 @@ class Scraper:
             except Exception as e:
                 print(f"Unexpected error occurred: {e}")
             finally:
-                driver.switch_to.default_content()
+                self.driver_instance.driver.switch_to.default_content()
 
         # Show pie charts and prepare soup
         chart_button_xpath = "/html/body/div[5]/div/div[1]/div[1]/nav/div[6]/span"
 
-        chart_button = (WebDriverWait(driver, 10)).until(EC.presence_of_element_located((By.XPATH, chart_button_xpath)))
+        chart_button = (WebDriverWait(self.driver_instance.driver, 10)).until(EC.presence_of_element_located((By.XPATH, chart_button_xpath)))
         chart_button.click()
 
         # Wait until data shows up
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(self.driver_instance.driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'resize-sensor')))
 
-        html = driver.page_source
+        html = self.driver_instance.driver.page_source
 
         return BeautifulSoup(html, "html.parser")
 
@@ -169,7 +168,7 @@ class Scraper:
                 connection.commit()
 
                 try:
-                    soup = self.create_soup(self.driver, link, index)
+                    soup = self.create_soup(link, index)
                     data_dictionary = {}
                     self.extract_general(soup, data_dictionary)
                     self.extract_notes(soup, data_dictionary)
@@ -208,6 +207,8 @@ class Scraper:
         finally:
             cursor.close()
             connection.close()
+            self.driver_instance.stop_driver()
+            return
 
 
 def extract():

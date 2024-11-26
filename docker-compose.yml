@@ -114,6 +114,11 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: webserver
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 1G
+#          cpus: "1"
     ports:
       - "8081:8080"
     healthcheck:
@@ -133,6 +138,11 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 512M
+#          cpus: "1"
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8974/health" ]
       interval: 30s
@@ -150,6 +160,11 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 3G
+#          cpus: "1"
     healthcheck:
       # yamllint disable rule:line-length
       test:
@@ -175,6 +190,11 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 512M
+#          cpus: "1"
     healthcheck:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]
       interval: 30s
@@ -259,67 +279,29 @@ services:
     networks:
       - app-network
 
-  # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
-  # or by explicitly targeted on the command line e.g. docker-compose up flower.
-  # See: https://docs.docker.com/compose/profiles/
-  flower:
-    <<: *airflow-common
-    command: celery flower
-    profiles:
-      - flower
-    ports:
-      - "5555:5555"
-    healthcheck:
-      test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    restart: always
-    depends_on:
-      <<: *airflow-common-depends-on
-      airflow-init:
-        condition: service_completed_successfully
-    networks:
-      - app-network
-
-#  # Workflow Service: Apache Airflow
-#  airflow:
-#    build:
-#      context: ./airflow
-#    restart: always
-#    env_file:
-#      - .env
-#    volumes:
-#      - ./airflow/dags:/opt/airflow/dags
-#      - ./airflow/logs:/opt/airflow/logs
-#      - ./airflow/plugins:/opt/airflow/plugins
-#      - ./airflow/config:/opt/airflow/config
+#  # You can enable flower by adding "--profile flower" option e.g. docker-compose --profile flower up
+#  # or by explicitly targeted on the command line e.g. docker-compose up flower.
+#  # See: https://docs.docker.com/compose/profiles/
+#  flower:
+#    <<: *airflow-common
+#    command: celery flower
+#    profiles:
+#      - flower
 #    ports:
-#      - "8080:8080"
+#      - "5555:5555"
+#    healthcheck:
+#      test: [ "CMD", "curl", "--fail", "http://localhost:5555/" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+#    restart: always
 #    depends_on:
-#      - postgres
-#      - redis
-#      - celery_worker
+#      <<: *airflow-common-depends-on
+#      airflow-init:
+#        condition: service_completed_successfully
 #    networks:
 #      - app-network
-#    user: "${AIRFLOW_UID:-50000}:0"
-
-    # celery_worker:
-    #    build:
-    #      context: ./backend
-    #      dockerfile: celery.Dockerfile
-    #    volumes:
-    #      - ./backend:/app/backend
-    ##    command: celery -A backend.settings.celery worker --loglevel=info
-    #    restart: always
-    #    env_file:
-    #      - .env
-    #    depends_on:
-    #      - backend
-    #      - redis
-    #    networks:
-    #      - app-network
 
 networks:
   app-network:

@@ -81,6 +81,12 @@ services:
     build:
       context: ./backend
       dockerfile: backend.Dockerfile
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     restart: always
     env_file:
       - .env
@@ -98,13 +104,18 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: production.Dockerfile
+      args:
+        VUE_APP_API_URL: ${VUE_APP_API_URL}
     restart: always
     env_file:
       - .env
-    volumes:
-      - ./frontend:/app/frontend
+#    volumes:
+#      - ./frontend:/app/frontend
+#    ports:
+#      - "3000:8080"
     ports:
-      - "3000:8080"
+      - "3000:80"
     depends_on:
       - backend
     networks:
@@ -113,6 +124,7 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
+    image: "apache/airflow:2.10.1"
     command: webserver
 #    deploy:
 #      resources:
@@ -137,6 +149,7 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
+    image: "apache/airflow:2.10.1"
     command: scheduler
 #    deploy:
 #      resources:
@@ -189,6 +202,7 @@ services:
 
   airflow-triggerer:
     <<: *airflow-common
+    image: "apache/airflow:2.10.1"
     command: triggerer
 #    deploy:
 #      resources:
@@ -211,6 +225,7 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    image: "apache/airflow:2.10.1"
     entrypoint: /bin/bash
     # yamllint disable rule:line-length
     command:

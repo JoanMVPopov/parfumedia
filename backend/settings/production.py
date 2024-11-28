@@ -58,8 +58,11 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080'
+    'http://localhost:8080',
+    'https://perfumedia.click'
 ]
+
+CSRF_TRUSTED_ORIGINS = ['https://perfumedia.click']
 
 ## ADDED FOR DRF
 REST_FRAMEWORK = {

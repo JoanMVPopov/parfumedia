@@ -229,8 +229,6 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      airflow-init:
-        condition: service_completed_successfully
     env_file:
       - .env
     environment:

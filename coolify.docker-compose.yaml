@@ -3,8 +3,23 @@ services:
   postgres:
     image: postgres:13
     restart: always
-    env_file:
-      - .env
+    environment:
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -21,8 +36,23 @@ services:
   redis:
     image: redis:6-alpine
     restart: always
-    env_file:
-      - .env
+    environment:
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
@@ -44,20 +74,33 @@ services:
       retries: 5
       start_period: 30s
     restart: always
-    env_file:
-      - .env
     environment:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
       AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
     volumes:
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/dags:/opt/airflow/dags
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/plugins:/opt/airflow/plugins
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - ./airflow/plugins:/opt/airflow/plugins
     user: "${AIRFLOW_UID:-50000}:0"
     depends_on:
       redis:
@@ -86,20 +129,33 @@ services:
         condition: service_healthy
       airflow-init:
         condition: service_completed_successfully
-    env_file:
-      - .env
     environment:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
       AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
     volumes:
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/dags:/opt/airflow/dags
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/plugins:/opt/airflow/plugins
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - ./airflow/plugins:/opt/airflow/plugins
     user: "${AIRFLOW_UID:-50000}:0"
     networks:
       - app-network
@@ -118,15 +174,33 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
-    env_file:
-      - .env
     environment:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
       AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - ./airflow/plugins:/opt/airflow/plugins
     restart: always
     depends_on:
       redis:
@@ -148,15 +222,33 @@ services:
       retries: 5
       start_period: 30s
     restart: always
-    env_file:
-      - .env
     environment:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
       AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - ./airflow/plugins:/opt/airflow/plugins
     depends_on:
       redis:
         condition: service_healthy
@@ -229,20 +321,33 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-    env_file:
-      - .env
     environment:
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
       AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
+      AIRFLOW_ADMIN_FIRSTNAME: ${AIRFLOW_ADMIN_FIRSTNAME}
+      AIRFLOW_ADMIN_LASTNAME: ${AIRFLOW_ADMIN_LASTNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_USER: ${AIRFLOW_ADMIN_USER}
+      AIRFLOW_CONN_DAG_CONNECTION: ${AIRFLOW_CONN_DAG_CONNECTION}
+      AIRFLOW_FAB_UPDATE_FAB_PERMS: ${AIRFLOW_FAB_UPDATE_FAB_PERMS}
+      AIRFLOW_GID: ${AIRFLOW_GID}
+      AIRFLOW_UID: ${AIRFLOW_UID}
+      AIRFLOW__CELERY__BROKER_URL: ${AIRFLOW__CELERY__BROKER_URL}
+      AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW__CORE__EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}
+      AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI: ${AIRFLOW__WEBSERVER__RATE_LIMIT_STORAGE_URI}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
     volumes:
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/dags:/opt/airflow/dags
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
-      - ${AIRFLOW_PROJ_DIR:-.}/airflow/plugins:/opt/airflow/plugins
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/config:/opt/airflow/config
+      - ./airflow/plugins:/opt/airflow/plugins
     user: "${AIRFLOW_UID:-50000}:0"
     networks:
       - app-network

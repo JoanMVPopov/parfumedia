@@ -207,6 +207,7 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
       - ./airflow/plugins:/opt/airflow/plugins
+    user: "${AIRFLOW_UID:-50000}:0"
     restart: always
     depends_on:
       redis:
@@ -258,6 +259,7 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
       - ./airflow/plugins:/opt/airflow/plugins
+    user: "${AIRFLOW_UID:-50000}:0"
     depends_on:
       redis:
         condition: service_healthy

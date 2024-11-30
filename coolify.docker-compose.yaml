@@ -316,6 +316,8 @@ services:
           --email "$${AIRFLOW_ADMIN_EMAIL}" \
           --password "$${AIRFLOW_ADMIN_PASSWORD}"
         echo "Init finished, no problems detected"
+        exit 0
+    restart: "no"
     depends_on:
       redis:
         condition: service_healthy

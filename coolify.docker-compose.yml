@@ -1,0 +1,40 @@
+services:
+  # Database Service: PostgreSQL
+  postgres:
+    image: postgres:13
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - app-network
+
+  # Cache & Broker Service: Redis
+  redis:
+    image: redis:6-alpine
+    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

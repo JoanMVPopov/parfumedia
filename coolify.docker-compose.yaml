@@ -69,40 +69,40 @@ services:
     networks:
       - app-network
 
-    airflow-scheduler:
-      image: "apache/airflow:2.10.1"
-      command: scheduler
-      healthcheck:
-        test: [ "CMD", "curl", "--fail", "http://localhost:8974/health" ]
-        interval: 30s
-        timeout: 10s
-        retries: 5
-        start_period: 30s
-      restart: always
-      depends_on:
-        redis:
-          condition: service_healthy
-        postgres:
-          condition: service_healthy
-        airflow-init:
-          condition: service_completed_successfully
-      env_file:
-        - .env
-      environment:
-        AIRFLOW__CORE__FERNET_KEY: ''
-        AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-        AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-        AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
-        AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-        _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-      volumes:
-        - ${AIRFLOW_PROJ_DIR:-.}/airflow/dags:/opt/airflow/dags
-        - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
-        - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
-        - ${AIRFLOW_PROJ_DIR:-.}/airflow/plugins:/opt/airflow/plugins
-      user: "${AIRFLOW_UID:-50000}:0"
-      networks:
-        - app-network
+  airflow-scheduler:
+    image: "apache/airflow:2.10.1"
+    command: scheduler
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8974/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+      AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    volumes:
+      - ${AIRFLOW_PROJ_DIR:-.}/airflow/dags:/opt/airflow/dags
+      - ${AIRFLOW_PROJ_DIR:-.}/airflow/logs:/opt/airflow/logs
+      - ${AIRFLOW_PROJ_DIR:-.}/airflow/config:/opt/airflow/config
+      - ${AIRFLOW_PROJ_DIR:-.}/airflow/plugins:/opt/airflow/plugins
+    user: "${AIRFLOW_UID:-50000}:0"
+    networks:
+      - app-network
 
   airflow-worker:
     build:

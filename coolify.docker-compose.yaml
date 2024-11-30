@@ -63,7 +63,10 @@ services:
       - app-network
 
   airflow-webserver:
-    image: "apache/airflow:2.10.1"
+#    image: "apache/airflow:2.10.1"
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
     command: webserver
     ports:
       - "8081:8080"
@@ -113,7 +116,10 @@ services:
       - app-network
 
   airflow-scheduler:
-    image: "apache/airflow:2.10.1"
+#    image: "apache/airflow:2.10.1"
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
     command: scheduler
     healthcheck:
       test: [ "CMD", "curl", "--fail", "http://localhost:8974/health" ]
@@ -213,7 +219,10 @@ services:
       - app-network
 
   airflow-triggerer:
-    image: "apache/airflow:2.10.1"
+#    image: "apache/airflow:2.10.1"
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
     command: triggerer
     healthcheck:
       test: [ "CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"' ]

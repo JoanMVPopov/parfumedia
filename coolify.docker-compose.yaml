@@ -318,6 +318,11 @@ services:
           echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
           echo
         fi
+        
+        echo "Checking existence of perfume and backlog tables..."
+        PGPASSWORD=${POSTGRES_PASSWORD} psql -h postgres -U postgres -d postgres -f /opt/airflow/scripts/init.sql
+        echo "Check done"
+        
         airflow db migrate &&
         airflow users create \
           --username "$${AIRFLOW_ADMIN_USER}" \
@@ -361,6 +366,7 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
       - ./airflow/plugins:/opt/airflow/plugins
+      - ./airflow/scripts:/opt/airflow/scripts
     user: "${AIRFLOW_UID:-50000}:0"
     networks:
       - app-network

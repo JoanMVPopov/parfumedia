@@ -78,6 +78,10 @@ services:
       start_period: 30s
     restart: always
     environment:
+      BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
+      RDS_HOST: ${RDS_HOST}
+      RDS_PASSWORD: ${RDS_PASSWORD}
+      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -100,6 +104,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
+      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -136,6 +141,10 @@ services:
       airflow-init:
         condition: service_completed_successfully
     environment:
+      BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
+      RDS_HOST: ${RDS_HOST}
+      RDS_PASSWORD: ${RDS_PASSWORD}
+      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -158,6 +167,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
+      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -181,6 +191,10 @@ services:
       retries: 5
       start_period: 30s
     environment:
+      BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
+      RDS_HOST: ${RDS_HOST}
+      RDS_PASSWORD: ${RDS_PASSWORD}
+      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -203,6 +217,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
+      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -233,6 +248,10 @@ services:
       start_period: 30s
     restart: always
     environment:
+      BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
+      RDS_HOST: ${RDS_HOST}
+      RDS_PASSWORD: ${RDS_PASSWORD}
+      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -255,6 +274,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
+      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config

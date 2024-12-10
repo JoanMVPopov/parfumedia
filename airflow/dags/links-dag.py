@@ -1,3 +1,5 @@
+import os
+
 from airflow.decorators import task
 from airflow.models import DagModel
 from airflow.operators.empty import EmptyOperator
@@ -17,6 +19,8 @@ from pyvirtualdisplay import Display
 from utilities.ListLinkScraper import link_scrape
 from airflow.utils.dates import days_ago
 from airflow.models.variable import Variable
+from sshtunnel import SSHTunnelForwarder
+import psycopg2
 
 default_args = {
     'start_date': days_ago(0),
@@ -60,6 +64,67 @@ with DAG(
         if abs(time_etl_completion - datetime.now()) >= delta:
             print(f"Elapsed time between last total scrape job and now exceeds ${delta}. Scraping will resume soon...")
             Variable.set("list_links_iterations", 0)
+
+            try:
+                # SSH Tunnel Configuration
+                bastion_host = os.getenv('BASTION_PUBLIC_IP')  # Replace with your bastion host public IP
+                bastion_username = 'ec2-user'
+                ssh_pkey = os.getenv('SSH_PKEY', '/root/.ssh/coolify_bastion_key')  # Path to your private key
+                remote_bind_host = os.getenv('RDS_HOST')
+                remote_bind_port = 5432
+                local_bind_port = 6000  # Local port for the SSH tunnel
+
+                # RDS Database Credentials
+                remote_db_name = 'postgres'
+                remote_db_user = 'postgres'
+                remote_db_password = os.getenv('RDS_PASSWORD')  # Replace with the actual password
+
+                # Establish SSH Tunnel
+                with SSHTunnelForwarder(
+                        (bastion_host, 22),
+                        ssh_username=bastion_username,
+                        ssh_pkey=ssh_pkey,
+                        remote_bind_address=(remote_bind_host, remote_bind_port),
+                        local_bind_address=('localhost', local_bind_port)
+                ) as tunnel:
+                    pg_hook = PostgresHook(postgres_conn_id='dag_connection')
+                    connection = pg_hook.get_conn()
+                    cursor = connection.cursor()
+
+                    # Fetch Rows from Local Table
+                    cursor.execute("SELECT * FROM etl_perfume;")
+                    rows = cursor.fetchall()
+
+                    # Connect to Remote RDS via Tunnel
+                    remote_conn = psycopg2.connect(
+                        host='localhost',  # Local end of the SSH tunnel
+                        port=local_bind_port,
+                        dbname=remote_db_name,
+                        user=remote_db_user,
+                        password=remote_db_password
+                    )
+                    remote_cur = remote_conn.cursor()
+
+                    # Insert Data into Remote Table
+                    insert_query = """
+                    INSERT INTO etl_perfume (link, name, brand, rel_year, rel_decade, notes, chart_categories, 
+                            chart_numbers, scent, longevity, sillage, bottle, value_for_money)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (link) DO NOTHING;
+                    """
+                    remote_cur.executemany(insert_query, rows)
+                    remote_conn.commit()
+
+                    print("Successfully transferred data to Amazon RDS instance")
+
+            except Exception as e:
+                print(f"Error: ${e}")
+            finally:
+                cursor.close()
+                connection.close()
+                remote_cur.close()
+                remote_conn.close()
+
             return
         else:
             print(f"Waiting time of ${delta} not reached. No actions will be taken until then...")

@@ -95,6 +95,9 @@ with DAG(
                     cursor.execute("SELECT * FROM etl_perfume;")
                     rows = cursor.fetchall()
 
+                    print("Number of rows: " + str(len(rows)))
+                    print(rows)
+
                     # Connect to Remote RDS via Tunnel
                     remote_conn = psycopg2.connect(
                         host='localhost',  # Local end of the SSH tunnel
@@ -104,6 +107,8 @@ with DAG(
                         password=remote_db_password
                     )
                     remote_cur = remote_conn.cursor()
+
+                    print("AFTER REMOTE CONN")
 
                     # Insert Data into Remote Table
                     insert_query = """
@@ -118,7 +123,7 @@ with DAG(
                     print("Successfully transferred data to Amazon RDS instance")
 
             except Exception as e:
-                print(f"Error: ${e}")
+                print(f"Error: {e}")
             finally:
                 cursor.close()
                 connection.close()

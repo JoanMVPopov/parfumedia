@@ -81,7 +81,7 @@ services:
       BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
       RDS_HOST: ${RDS_HOST}
       RDS_PASSWORD: ${RDS_PASSWORD}
-      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
+      SSH_PKEY: /root/.ssh/coolify_bastion_key
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -144,7 +144,7 @@ services:
       BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
       RDS_HOST: ${RDS_HOST}
       RDS_PASSWORD: ${RDS_PASSWORD}
-      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
+      SSH_PKEY: /root/.ssh/coolify_bastion_key
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -194,7 +194,7 @@ services:
       BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
       RDS_HOST: ${RDS_HOST}
       RDS_PASSWORD: ${RDS_PASSWORD}
-      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
+      SSH_PKEY: /root/.ssh/coolify_bastion_key
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -251,7 +251,7 @@ services:
       BASTION_PUBLIC_IP: ${BASTION_PUBLIC_IP}
       RDS_HOST: ${RDS_HOST}
       RDS_PASSWORD: ${RDS_PASSWORD}
-      SSH_PKEY: /root/.ssh/coolify_bastion_key.pem
+      SSH_PKEY: /root/.ssh/coolify_bastion_key
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'

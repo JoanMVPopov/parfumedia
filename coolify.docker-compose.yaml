@@ -104,7 +104,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
-      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
+      - /root/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -167,7 +167,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
-      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
+      - /root/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -217,7 +217,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
-      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
+      - /root/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config
@@ -274,7 +274,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: ${REDIS_URL}
     volumes:
-      - ~/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
+      - /root/.ssh/coolify_bastion_key:/root/.ssh/coolify_bastion_key:ro
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/config:/opt/airflow/config

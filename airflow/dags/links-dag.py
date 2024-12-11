@@ -112,9 +112,9 @@ with DAG(
 
                     # Insert Data into Remote Table
                     insert_query = """
-                    INSERT INTO etl_perfume (link, name, brand, rel_year, rel_decade, notes, chart_categories, 
+                    INSERT INTO etl_perfume (id, link, name, brand, rel_year, rel_decade, notes, chart_categories, 
                             chart_numbers, scent, longevity, sillage, bottle, value_for_money)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (link) DO NOTHING;
                     """
                     remote_cur.executemany(insert_query, rows)
